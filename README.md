@@ -2,6 +2,8 @@
 
 A lightweight caching HTTP proxy server written in Go. This tool forwards HTTP requests to a specified origin server and caches the responses. Subsequent identical requests are served from the cache, improving response times and reducing load on the origin server.
 
+[Project URL](https://roadmap.sh/projects/caching-server)
+
 ## Features
 
 - Forward HTTP requests to a specified origin server
