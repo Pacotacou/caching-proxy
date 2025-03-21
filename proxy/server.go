@@ -35,6 +35,8 @@ func (p *ProxyServer) Start() error {
 	log.Printf("Starting the caching proxy server on port %d, forwarding to %s\n", p.Port, p.OriginURL)
 	log.Printf("Cache is currently empty\n")
 
+	http.HandleFunc("/admin/cache", p.handleCacheAdmin)
+
 	http.HandleFunc("/", p.handleRequest)
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", p.Port), nil)
@@ -43,6 +45,17 @@ func (p *ProxyServer) Start() error {
 func (p *ProxyServer) ClearCache() {
 	p.Cache.Clear()
 	log.Println("Cache cleared")
+}
+
+func (p *ProxyServer) handleCacheAdmin(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodDelete {
+		p.Cache.Clear()
+		cacheSize := p.Cache.Size()
+		log.Printf("Cache cleared via admin endpoint")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Cache cleared. Current size: %d items", cacheSize)
+		return
+	}
 }
 
 func (p *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {

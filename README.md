@@ -2,9 +2,6 @@
 
 A lightweight caching HTTP proxy server written in Go. This tool forwards HTTP requests to a specified origin server and caches the responses. Subsequent identical requests are served from the cache, improving response times and reducing load on the origin server.
 
-## Project URL
-[Project URL](https://roadmap.sh/projects/caching-server)
-
 ## Features
 
 - Forward HTTP requests to a specified origin server
@@ -59,10 +56,16 @@ This starts the proxy server on port 3000, forwarding requests to http://dummyjs
 ### Clearing the cache
 
 ```bash
-./caching-proxy --clear-cache
+./caching-proxy --clear-cache --port <port_number>
 ```
 
-This command clears the in-memory cache and exits.
+This command sends a request to a running proxy server on the specified port to clear its cache. The port number must match the port of the running proxy server.
+
+Example:
+```bash
+# Clear the cache of the proxy server running on port 3000
+./caching-proxy --clear-cache --port 3000
+```
 
 ## How It Works
 
@@ -89,6 +92,18 @@ curl -v http://localhost:3000/products
 
 The second request should show `X-Cache: HIT`, indicating that the response was served from the cache.
 
+
+
+Clear the cache either through the API:
+```bash
+curl -X DELETE http://localhost:3000/admin/cache
+```
+
+Or using the command-line tool:
+```bash
+./caching-proxy --clear-cache --port 3000
+```
+
 ## Project Structure
 
 ```
@@ -110,4 +125,5 @@ caching-proxy/
 - Cache is stored in memory and not persisted between restarts
 - Limited support for different HTTP methods and complex request scenarios
 - No HTTPS support
-
+- Basic authentication could be added to the admin endpoints for security
+- Metrics and monitoring could be improved (request counts, cache hit ratios, etc.)

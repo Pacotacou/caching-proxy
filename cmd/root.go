@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"time"
 
 	"caching-proxy/proxy"
 
@@ -27,8 +30,30 @@ response instead of forwarding the request to the server.`,
 
 		// If --clear-cache flag is set, clear the cache and exit
 		if clearCache {
-			fmt.Println("Clearing cache...")
-			proxyServer.ClearCache()
+			if port == 0 {
+				fmt.Println("Error: --port flag is required when using --clear-cache")
+				cmd.Help()
+				os.Exit(1)
+			}
+
+			clearURL := fmt.Sprintf("http://localhost:%d/admin/cache", port)
+			req, err := http.NewRequest(http.MethodDelete, clearURL, nil)
+			if err != nil {
+				fmt.Printf("Error creating request: %v\n", err)
+				os.Exit(1)
+			}
+
+			client := &http.Client{Timeout: 5 * time.Second}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Printf("Error clearing cache : %v\n", err)
+				fmt.Println("Is the proxy running on the specified port?")
+				os.Exit(1)
+			}
+			defer resp.Body.Close()
+
+			body, _ := io.ReadAll(resp.Body)
+			fmt.Println(string(body))
 			return
 		}
 
